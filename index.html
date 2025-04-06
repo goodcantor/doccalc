@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Калькулятор расчёта</title>
+    <style>
+      body,
+      html {
+        font-family: "Inter", Arial, sans-serif;
+        box-sizing: border-box;
+      }
+
+      .container {
+        max-width: 1200px;
+        padding: 0 20px;
+        margin: 0 auto;
+      }
+
+      .title {
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+
+      .title-black {
+        color: #000;
+      }
+
+      .title-gray {
+        color: #666;
+      }
+
+      .calculator-form {
+        background-color: #333;
+        padding: 20px;
+        border-radius: 12px;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .input-group {
+        position: relative;
+        flex: 1;
+      }
+
+      input {
+        width: 78%;
+        padding: 12px 35px;
+        border: none;
+        border-radius: 25px;
+        font-size: 16px;
+        background: white;
+      }
+
+      .input-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        color: #666;
+      }
+
+      .submit-btn {
+        background: #ffa500;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 12px 25px;
+        font-size: 16px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .submit-btn:hover {
+        background: #ff8c00;
+      }
+
+      .download-btn {
+        background: #34a853;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 12px 25px;
+        font-size: 16px;
+        cursor: pointer;
+        display: none;
+        margin-top: 20px;
+      }
+
+      .download-btn:hover {
+        background: #2e8b47;
+      }
+
+      /* Стили для лоадера */
+      .loader-container {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .loader {
+        border: 5px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 5px solid #3498db;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+      }
+
+      .loader-text {
+        margin-top: 20px;
+        font-size: 18px;
+        color: #333;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Стили для таблицы */
+      .table-container {
+        margin-top: 2rem;
+        overflow-x: auto;
+        display: none; /* Скрыта по умолчанию */
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #4285f4;
+        color: white;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      tr:hover {
+        background-color: #ddd;
+      }
+
+      .display-container {
+        margin-top: 20px;
+        padding: 15px;
+        background: #f5f5f5;
+        border-radius: 8px;
+      }
+
+      .display-line {
+        padding: 8px 0;
+        border-bottom: 1px solid #ddd;
+        font-size: 16px;
+      }
+
+      .display-line:last-child {
+        border-bottom: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="loader-container" id="loaderContainer">
+      <div style="text-align: center">
+        <div class="loader"></div>
+        <div class="loader-text">Подготовка файла...</div>
+      </div>
+    </div>
+
+    <div class="container">
+      <h1 class="title">
+        <span class="title-black">Заполните необходимые данные и</span>
+        <span class="title-gray">получите рассчёт прямо на сайте:</span>
+      </h1>
+
+      <form id="sheetForm" class="calculator-form">
+        <div class="input-group">
+          <span class="input-icon">↔️</span>
+          <input type="text" id="value1" placeholder="Длинна" required />
+        </div>
+        <div class="input-group">
+          <span class="input-icon">⤢</span>
+          <input type="text" id="value2" placeholder="Ширина" required />
+        </div>
+        <div class="input-group">
+          <span class="input-icon">↕️</span>
+          <input type="text" id="value3" placeholder="Высота" required />
+        </div>
+        <button type="submit" class="submit-btn">Получить рассчёт</button>
+      </form>
+
+      <button id="downloadBtn" class="download-btn">Скачать расчёт</button>
+
+      <div id="status" class="status"></div>
+    </div>
+
+    <!-- Добавляем контейнер для таблицы -->
+    <div class="table-container" id="tableContainer">
+      <h3>Данные таблицы:</h3>
+      <table id="sheetData">
+        <thead>
+          <tr id="tableHeaders"></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div id="displayContainer" class="display-container"></div>
+
+    <script>
+      const API_URL = "http://localhost:3000"; // Замените на ваш домен
+      const downloadBtn = document.getElementById("downloadBtn");
+      const loaderContainer = document.getElementById("loaderContainer");
+      const tableContainer = document.getElementById("tableContainer");
+      const tableHeaders = document.getElementById("tableHeaders");
+      const tableBody = document.getElementById("tableBody");
+
+      // Функция для загрузки и отображения данных таблицы
+      async function loadSheetData() {
+        try {
+          const response = await fetch(`${API_URL}/get-sheet-data`);
+          if (!response.ok) throw new Error("Ошибка получения данных");
+
+          const data = await response.json();
+
+          // Заполняем поля формы
+          for (const [key, value] of Object.entries(data.values)) {
+            const input = document.getElementById(key);
+            if (input) input.value = value;
+          }
+
+          // Отображаем строки из таблицы
+          const displayContainer = document.getElementById("displayContainer");
+          if (displayContainer) {
+            displayContainer.innerHTML = data.displayLines
+              .map((line) => `<div class="display-line">${line.text}</div>`)
+              .join("");
+          }
+        } catch (error) {
+          console.error("Ошибка при загрузке данных:", error);
+          document.getElementById(
+            "status"
+          ).innerHTML = `<span style="color:red">Ошибка загрузки данных: ${error.message}</span>`;
+        }
+      }
+
+      // Функция для скачивания с повторными попытками
+      async function downloadWithRetry(maxRetries = 3, delay = 2000) {
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          try {
+            loaderContainer.style.display = "flex";
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+
+            window.location.href = `${API_URL}/download-file`;
+
+            setTimeout(() => {
+              loaderContainer.style.display = "none";
+            }, 1000);
+
+            return;
+          } catch (error) {
+            console.error(`Попытка ${attempt} не удалась:`, error);
+
+            if (attempt === maxRetries) {
+              loaderContainer.style.display = "none";
+              document.getElementById(
+                "status"
+              ).innerHTML = `<span style="color:red">Ошибка при скачивании после ${maxRetries} попыток</span>`;
+              throw error;
+            } else {
+              document.getElementById(
+                "status"
+              ).innerHTML = `<span style="color:orange">Повторная попытка ${
+                attempt + 1
+              } из ${maxRetries}...</span>`;
+              await new Promise((resolve) => setTimeout(resolve, delay));
+            }
+          }
+        }
+      }
+
+      // Обработчик отправки формы
+      document
+        .getElementById("sheetForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          // Получаем геолокацию (если пользователь разрешит)
+          let location = null;
+          try {
+            const position = await new Promise((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject);
+            });
+            location = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            };
+          } catch (error) {
+            console.log("Геолокация недоступна");
+          }
+
+          const data = {
+            value1: document.getElementById("value1").value,
+            value2: document.getElementById("value2").value,
+            value3: document.getElementById("value3").value,
+            userInfo: {
+              screenResolution: `${window.screen.width}x${window.screen.height}`,
+              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+              language: navigator.language,
+              platform: navigator.platform,
+              location: location,
+            },
+          };
+
+          try {
+            const response = await fetch(`${API_URL}/update-sheet`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+              document.getElementById("status").innerHTML =
+                '<span style="color:green">Данные успешно записаны!</span>';
+              document.getElementById("sheetForm").reset();
+              downloadBtn.style.display = "block";
+
+              // Загружаем и показываем обновленные данные таблицы
+              await loadSheetData();
+            } else {
+              throw new Error("Ошибка записи");
+            }
+          } catch (error) {
+            document.getElementById(
+              "status"
+            ).innerHTML = `<span style="color:red">Ошибка: ${error.message}</span>`;
+            downloadBtn.style.display = "none";
+          }
+        });
+
+      // Обработчик для кнопки скачивания
+      downloadBtn.addEventListener("click", async () => {
+        try {
+          await downloadWithRetry(5, 2000);
+        } catch (error) {
+          console.error("Все попытки скачивания не удались:", error);
+        }
+      });
+    </script>
+  </body>
+</html>
