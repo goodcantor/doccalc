@@ -5,78 +5,87 @@
     <style>
       body,
       html {
-        font-family: "Inter", Arial, sans-serif;
-        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
-
+      .calc {
+        font-family: "Onest", "Inter", Arial, sans-serif;
+        box-sizing: border-box;
+        padding: 60px 0;
+      }
       .container {
         max-width: 1200px;
         padding: 0 20px;
         margin: 0 auto;
       }
-
-      .title {
-        font-size: 24px;
-        margin-bottom: 20px;
+      .calc__title {
+        color: #202737;
+        font-size: 30px;
+        font-weight: 600;
+        margin: 0 0 36px 0;
       }
-
-      .title-black {
-        color: #000;
+      .calc__title-grey {
+        color: #556073;
       }
-
-      .title-gray {
-        color: #666;
+      .calc__box {
+        margin-bottom: 30px;
       }
-
-      .calculator-form {
-        background-color: #333;
-        padding: 20px;
-        border-radius: 12px;
+      .calc__form {
+        padding: 40px 60px;
+        border-radius: 28px;
+        background: linear-gradient(90deg, #343434 0%, #4a4a4a 100%);
+        box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.03);
         display: flex;
         gap: 15px;
         align-items: center;
       }
-
-      .input-group {
+      .calc__input-group {
         position: relative;
-        flex: 1;
+        width: 100%;
+        display: flex;
       }
-
-      input {
-        width: 78%;
-        padding: 12px 35px;
+      .calc__input {
+        width: 100%;
+        padding: 12px 12px 12px 46px;
         border: none;
         border-radius: 25px;
-        font-size: 16px;
         background: white;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 100%;
+        letter-spacing: 0.32px;
       }
-
-      .input-icon {
+      .calc__input-icon {
         position: absolute;
         left: 12px;
         top: 50%;
         transform: translateY(-50%);
-        width: 20px;
-        height: 20px;
         color: #666;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
-
-      .submit-btn {
-        background: #ffa500;
+      .calc__submit-btn {
+        width: 100%;
+        background: #ffa63e;
         color: white;
         border: none;
         border-radius: 25px;
         padding: 12px 25px;
-        font-size: 16px;
         cursor: pointer;
         white-space: nowrap;
+        font-size: 17px;
+        font-weight: 600;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
       }
-
-      .submit-btn:hover {
+      .calc__submit-btn:hover {
         background: #ff8c00;
       }
-
-      .download-btn {
+      .calc__download-btn {
         background: #34a853;
         color: white;
         border: none;
@@ -87,41 +96,67 @@
         display: none;
         margin-top: 20px;
       }
-
-      .download-btn:hover {
+      .calc__download-btn:hover {
         background: #2e8b47;
+      }
+      .calc__status {
+        margin-top: 10px;
+      }
+      .display-container {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+      }
+      /* .display-line {
+        padding: 8px 0;
+        border-bottom: 1px solid #ddd;
+        font-size: 16px;
+      }
+      .display-line:last-child {
+        border-bottom: none;
+      } */
+      @media (max-width: 968px) {
+        .container {
+          padding: 0 10px;
+        }
+        .calc__title {
+          font-size: 24px;
+          margin-bottom: 24px;
+        }
+        .calc__form {
+          padding: 30px 16px;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .calc__input-group {
+          width: 100%;
+        }
+        .calc__submit-btn {
+          margin-top: 6px;
+        }
       }
 
       /* Стили для лоадера */
-      .loader-container {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.9);
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-      }
-
       .loader {
-        border: 5px solid #f3f3f3;
+        display: none;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #ffffff;
+        border-bottom-color: transparent;
         border-radius: 50%;
-        border-top: 5px solid #3498db;
-        width: 50px;
-        height: 50px;
-        animation: spin 1s linear infinite;
+        animation: rotation 1s linear infinite;
       }
 
-      .loader-text {
-        margin-top: 20px;
-        font-size: 18px;
-        color: #333;
+      .calc__submit-btn.loading {
+        pointer-events: none;
+        opacity: 0.8;
       }
 
-      @keyframes spin {
+      .calc__submit-btn.loading .loader {
+        display: block;
+      }
+
+      @keyframes rotation {
         0% {
           transform: rotate(0deg);
         }
@@ -130,114 +165,237 @@
         }
       }
 
-      /* Стили для таблицы */
-      .table-container {
-        margin-top: 2rem;
-        overflow-x: auto;
-        display: none; /* Скрыта по умолчанию */
+      .calc__result {
+        margin-top: 30px;
+        padding: 30px;
+        background: #f8f9fa;
+        border-radius: 28px;
+        box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.03);
       }
 
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 1rem;
+      .calc__result-title {
+        color: #202737;
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 20px 0;
+        text-align: center;
       }
 
-      th,
-      td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
+      .calc__result-price {
+        font-size: 24px;
+        font-weight: 700;
+        color: #34a853;
+        margin-bottom: 25px;
+        text-align: center;
       }
 
-      th {
-        background-color: #4285f4;
-        color: white;
+      .calc__result-details {
+        margin-bottom: 25px;
       }
 
-      tr:nth-child(even) {
-        background-color: #f2f2f2;
-      }
-
-      tr:hover {
-        background-color: #ddd;
-      }
-
-      .display-container {
-        margin-top: 20px;
-        padding: 15px;
-        background: #f5f5f5;
-        border-radius: 8px;
-      }
-
-      .display-line {
-        padding: 8px 0;
-        border-bottom: 1px solid #ddd;
+      /* .display-line {
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
         font-size: 16px;
+        color: #556073;
       }
 
       .display-line:last-child {
         border-bottom: none;
+      } */
+
+      .calc__download-section {
+        text-align: center;
+      }
+
+      .calc__download-text {
+        color: #556073;
+        font-size: 16px;
+        margin-bottom: 15px;
+      }
+
+      .calc__download-btn {
+        background: #34a853;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 15px 30px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: background-color 0.3s;
+      }
+
+      .calc__download-btn:hover {
+        background: #2e8b47;
+      }
+
+      .calc__download-btn svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      .calc__status {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 16px;
       }
     </style>
   </head>
   <body>
-    <div class="loader-container" id="loaderContainer">
-      <div style="text-align: center">
-        <div class="loader"></div>
-        <div class="loader-text">Подготовка файла...</div>
+    <section class="calc">
+      <div class="container">
+        <h2 class="calc__title">
+          Заполните необходимые данные и
+          <span class="calc__title-grey">получите рассчёт прямо на сайте:</span>
+        </h2>
+        <div class="calc__box">
+          <form id="sheetForm" class="calc__form">
+            <div class="calc__input-group">
+              <span class="calc__input-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="26"
+                  height="11"
+                  viewBox="0 0 26 11"
+                  fill="none"
+                >
+                  <path
+                    d="M7.2647 6.26477L18.7353 6.26477L18.7353 9.70596C18.7353 10.3323 19.4471 10.693 19.9522 10.3226L25.6875 6.11674C26.1041 5.81119 26.1041 5.18897 25.6875 4.88342L19.9522 0.677513C19.4471 0.307114 18.7353 0.667813 18.7353 1.29415L18.7353 4.73534L7.2647 4.73534L7.2647 1.29415C7.2647 0.667763 6.5529 0.307064 6.04778 0.677513L0.312495 4.88342C-0.104165 5.18897 -0.104165 5.81119 0.312495 6.11674L6.04778 10.3226C6.5529 10.693 7.2647 10.3323 7.2647 9.70596L7.2647 6.26477Z"
+                    fill="black"
+                  />
+                </svg>
+              </span>
+              <input
+                type="text"
+                id="value1"
+                class="calc__input"
+                placeholder="Длина в метрах"
+                pattern="[0-9]+([.,][0-9]+)?"
+                inputmode="decimal"
+                required
+                onkeypress="return /[0-9.,]/i.test(event.key)"
+              />
+            </div>
+            <div class="calc__input-group">
+              <span class="calc__input-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="26"
+                  height="27"
+                  viewBox="0 0 26 27"
+                  fill="none"
+                >
+                  <path
+                    d="M16.5154 8.90371L8.40445 17.0146L5.97116 14.5813C5.52823 14.1384 4.76986 14.3867 4.6746 15.0058L3.59317 22.0353C3.5146 22.5459 3.95458 22.9859 4.46526 22.9073L11.4947 21.8259C12.1138 21.7306 12.3621 20.9723 11.9192 20.5294L9.48592 18.0961L17.5968 9.98518L20.0301 12.4185C20.473 12.8614 21.2314 12.6131 21.3266 11.994L22.4081 4.96452C22.4866 4.45384 22.0467 4.01386 21.536 4.09243L14.5065 5.17386C13.8874 5.26912 13.6392 6.0275 14.0821 6.47042L16.5154 8.90371Z"
+                    fill="black"
+                  />
+                </svg>
+              </span>
+              <input
+                type="text"
+                id="value2"
+                class="calc__input"
+                placeholder="Ширина в метрах"
+                pattern="[0-9]+([.,][0-9]+)?"
+                inputmode="decimal"
+                required
+                onkeypress="return /[0-9.,]/i.test(event.key)"
+              />
+            </div>
+            <div class="calc__input-group">
+              <span class="calc__input-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="26"
+                  height="27"
+                  viewBox="0 0 26 27"
+                  fill="none"
+                >
+                  <path
+                    d="M13.764 19.2353V7.76473H17.2052C17.8316 7.76473 18.1923 7.05293 17.8219 6.54781L13.616 0.81252C13.3105 0.39586 12.6882 0.39586 12.3827 0.81252L8.17678 6.54781C7.80638 7.05293 8.16708 7.76473 8.79342 7.76473H12.2346V19.2353H8.79342C8.16703 19.2353 7.80633 19.9471 8.17678 20.4522L12.3827 26.1875C12.6882 26.6042 13.3105 26.6042 13.616 26.1875L17.8219 20.4522C18.1923 19.9471 17.8316 19.2353 17.2052 19.2353H13.764Z"
+                    fill="black"
+                  />
+                </svg>
+              </span>
+              <input
+                type="text"
+                id="value3"
+                class="calc__input"
+                placeholder="Высота в метрах"
+                pattern="[0-9]+([.,][0-9]+)?"
+                inputmode="decimal"
+                required
+                onkeypress="return /[0-9.,]/i.test(event.key)"
+              />
+            </div>
+            <button type="submit" class="calc__submit-btn">
+              <span class="button-text">Получить рассчёт</span>
+              <span class="loader"></span>
+            </button>
+          </form>
+
+          <div class="calc__result" id="resultSection" style="display: none">
+            <h3 class="calc__result-title">Результаты расчёта:</h3>
+
+            <div class="calc__result-price" id="totalPrice">
+              Итоговая стоимость: <span><div id="displayContainer"></div></span>
+            </div>
+
+            <div class="calc__download-section">
+              <p class="calc__download-text">
+                Расчёт готов! Вы можете скачать подробный отчёт в формате PDF
+              </p>
+              <button id="downloadBtn" class="calc__download-btn">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+                Скачать расчёт
+              </button>
+              <div id="status" class="calc__status"></div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <div class="container">
-      <h1 class="title">
-        <span class="title-black">Заполните необходимые данные и</span>
-        <span class="title-gray">получите рассчёт прямо на сайте:</span>
-      </h1>
-
-      <form id="sheetForm" class="calculator-form">
-        <div class="input-group">
-          <span class="input-icon">↔️</span>
-          <input type="text" id="value1" placeholder="Длинна" required />
-        </div>
-        <div class="input-group">
-          <span class="input-icon">⤢</span>
-          <input type="text" id="value2" placeholder="Ширина" required />
-        </div>
-        <div class="input-group">
-          <span class="input-icon">↕️</span>
-          <input type="text" id="value3" placeholder="Высота" required />
-        </div>
-        <button type="submit" class="submit-btn">Получить рассчёт</button>
-      </form>
-
-      <button id="downloadBtn" class="download-btn">Скачать расчёт</button>
-
-      <div id="status" class="status"></div>
-    </div>
-
-    <!-- Добавляем контейнер для таблицы -->
-    <div class="table-container" id="tableContainer">
-      <h3>Данные таблицы:</h3>
-      <table id="sheetData">
-        <thead>
-          <tr id="tableHeaders"></tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-
-    <div id="displayContainer" class="display-container"></div>
+    </section>
 
     <script>
-      const API_URL = "http://localhost:3000"; // Замените на ваш домен
+      const API_URL = "http://localhost:3000";
       const downloadBtn = document.getElementById("downloadBtn");
-      const loaderContainer = document.getElementById("loaderContainer");
-      const tableContainer = document.getElementById("tableContainer");
-      const tableHeaders = document.getElementById("tableHeaders");
-      const tableBody = document.getElementById("tableBody");
 
-      // Функция для загрузки и отображения данных таблицы
+      // Функция для форматирования чисел
+      function formatNumber(value) {
+        if (value === undefined || value === null || value === "") return "";
+
+        // Преобразуем в строку, если это не строка
+        const strValue = String(value);
+
+        // Заменяем запятую на точку для корректной работы с числами
+        const numValue = strValue.replace(",", ".");
+
+        // Пробуем преобразовать в число
+        const parsed = parseFloat(numValue);
+
+        // Если не число, возвращаем исходное значение
+        if (isNaN(parsed)) return strValue;
+
+        // Форматируем число с разделителями тысяч
+        return parsed.toLocaleString("ru-RU");
+      }
+
       async function loadSheetData() {
         try {
           const response = await fetch(`${API_URL}/get-sheet-data`);
@@ -248,15 +406,30 @@
           // Заполняем поля формы
           for (const [key, value] of Object.entries(data.values)) {
             const input = document.getElementById(key);
-            if (input) input.value = value;
+            if (input && value !== "") {
+              input.value = formatNumber(value);
+            }
           }
 
-          // Отображаем строки из таблицы
-          const displayContainer = document.getElementById("displayContainer");
-          if (displayContainer) {
+          // Показываем секцию с результатами
+          const resultSection = document.getElementById("resultSection");
+          if (data.displayLines?.length) {
+            resultSection.style.display = "block";
+
+            // Обновляем итоговую стоимость
+            if (data.totalPrice) {
+              document.querySelector("#totalPrice span").textContent =
+                formatNumber(data.totalPrice);
+            }
+
+            // Отображаем детали расчёта
+            const displayContainer =
+              document.getElementById("displayContainer");
             displayContainer.innerHTML = data.displayLines
               .map((line) => `<div class="display-line">${line.text}</div>`)
               .join("");
+          } else {
+            resultSection.style.display = "none";
           }
         } catch (error) {
           console.error("Ошибка при загрузке данных:", error);
@@ -266,72 +439,35 @@
         }
       }
 
-      // Функция для скачивания с повторными попытками
-      async function downloadWithRetry(maxRetries = 3, delay = 2000) {
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-          try {
-            loaderContainer.style.display = "flex";
-            await new Promise((resolve) => setTimeout(resolve, 5000));
-
-            window.location.href = `${API_URL}/download-file`;
-
-            setTimeout(() => {
-              loaderContainer.style.display = "none";
-            }, 1000);
-
-            return;
-          } catch (error) {
-            console.error(`Попытка ${attempt} не удалась:`, error);
-
-            if (attempt === maxRetries) {
-              loaderContainer.style.display = "none";
-              document.getElementById(
-                "status"
-              ).innerHTML = `<span style="color:red">Ошибка при скачивании после ${maxRetries} попыток</span>`;
-              throw error;
-            } else {
-              document.getElementById(
-                "status"
-              ).innerHTML = `<span style="color:orange">Повторная попытка ${
-                attempt + 1
-              } из ${maxRetries}...</span>`;
-              await new Promise((resolve) => setTimeout(resolve, delay));
-            }
-          }
-        }
-      }
-
-      // Обработчик отправки формы
       document
         .getElementById("sheetForm")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
 
-          // Получаем геолокацию (если пользователь разрешит)
-          let location = null;
-          try {
-            const position = await new Promise((resolve, reject) => {
-              navigator.geolocation.getCurrentPosition(resolve, reject);
-            });
-            location = {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-            };
-          } catch (error) {
-            console.log("Геолокация недоступна");
-          }
+          // Получаем значения из полей формы
+          const formatValue = (value) => {
+            // Преобразуем строку в число и заменяем точку на запятую для Google Sheets
+            if (!value) return "";
+            // Сначала преобразуем в число, чтобы убедиться, что это числовое значение
+            const numValue = value.replace(",", ".").trim();
+            const parsed = parseFloat(numValue);
+            if (isNaN(parsed)) return value;
+            // Затем преобразуем обратно в строку с запятой вместо точки для Google Sheets
+            return String(parsed).replace(".", ",");
+          };
+
+          const submitBtn = e.target.querySelector(".calc__submit-btn");
+          const buttonText = submitBtn.querySelector(".button-text");
+          const originalText = buttonText.textContent;
+
+          // Показываем лоадер
+          submitBtn.classList.add("loading");
+          buttonText.textContent = "";
 
           const data = {
-            value1: document.getElementById("value1").value,
-            value2: document.getElementById("value2").value,
-            value3: document.getElementById("value3").value,
-            userInfo: {
-              screenResolution: `${window.screen.width}x${window.screen.height}`,
-              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-              language: navigator.language,
-              platform: navigator.platform,
-              location: location,
-            },
+            value1: formatValue(document.getElementById("value1").value || "0"),
+            value2: formatValue(document.getElementById("value2").value || "0"),
+            value3: formatValue(document.getElementById("value3").value || "0"),
           };
 
           try {
@@ -345,9 +481,7 @@
               document.getElementById("status").innerHTML =
                 '<span style="color:green">Данные успешно записаны!</span>';
               document.getElementById("sheetForm").reset();
-              downloadBtn.style.display = "block";
-
-              // Загружаем и показываем обновленные данные таблицы
+              document.getElementById("resultSection").style.display = "block";
               await loadSheetData();
             } else {
               throw new Error("Ошибка записи");
@@ -356,16 +490,22 @@
             document.getElementById(
               "status"
             ).innerHTML = `<span style="color:red">Ошибка: ${error.message}</span>`;
-            downloadBtn.style.display = "none";
+            document.getElementById("resultSection").style.display = "none";
+          } finally {
+            // Убираем лоадер и возвращаем исходный текст
+            submitBtn.classList.remove("loading");
+            buttonText.textContent = originalText;
           }
         });
 
-      // Обработчик для кнопки скачивания
       downloadBtn.addEventListener("click", async () => {
         try {
-          await downloadWithRetry(5, 2000);
+          window.location.href = `${API_URL}/download-file`;
         } catch (error) {
-          console.error("Все попытки скачивания не удались:", error);
+          console.error("Ошибка при скачивании:", error);
+          document.getElementById(
+            "status"
+          ).innerHTML = `<span style="color:red">Ошибка при скачивании: ${error.message}</span>`;
         }
       });
     </script>
