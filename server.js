@@ -148,14 +148,7 @@ bot.onText(/\/status/, async (msg) => {
 });
 
 // === SERVER CONFIGURATION ===
-app.use(
-  cors({
-    origin: process.env.ALLOWED_ORIGINS.split(","),
-    methods: ["GET", "POST"],
-    credentials: true,
-    optionsSuccessStatus: 200,
-  })
-);
+app.use(cors());
 app.use(express.json());
 app.use(useragent.express());
 
