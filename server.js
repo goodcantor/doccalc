@@ -22,6 +22,8 @@ const allowedOrigins = [
   "http://housespb.tilda.ws",
   "http://api.enel-spb.ru",
   "https://api.enel-spb.ru",
+  "https://api.farvix.shop",
+  "http://api.farvix.shop",
 ];
 
 // Конфигурация CORS
@@ -148,7 +150,14 @@ bot.onText(/\/status/, async (msg) => {
 });
 
 // === SERVER CONFIGURATION ===
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS.split(","),
+    methods: ["GET", "POST"],
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+);
 app.use(express.json());
 app.use(useragent.express());
 
