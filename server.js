@@ -6,49 +6,57 @@ const axios = require("axios");
 const TelegramBot = require("node-telegram-bot-api");
 const geoip = require("geoip-lite");
 const useragent = require("express-useragent");
-const fs = require('fs').promises;
-const path = require('path');
+const fs = require("fs").promises;
+const path = require("path");
 
 const app = express();
 
 // Настройка CORS до всех остальных middleware и маршрутов
 const allowedOrigins = [
-  'http://127.0.0.1:8888',
-  'http://localhost:8888',
-  'http://localhost:3000'
+  "http://127.0.0.1:8888",
+  "http://localhost:8888",
+  "http://localhost:3000",
+  "https://enel-spb.ru",
+  "http://enel-spb.ru",
+  "https://housespb.tilda.ws",
+  "http://housespb.tilda.ws",
+  "http://api.enel-spb.ru",
+  "https://api.enel-spb.ru",
 ];
 
 // Конфигурация CORS
-app.use(cors({
-  origin: function (origin, callback) {
-    // Разрешаем запросы без origin (например, от Postman)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('Blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  optionsSuccessStatus: 200
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Разрешаем запросы без origin (например, от Postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        console.log("Blocked origin:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+);
 
 // Добавляем дополнительные заголовки
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader("Access-Control-Allow-Origin", origin);
   }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
   // Handle preflight
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
   next();
@@ -57,7 +65,7 @@ app.use((req, res, next) => {
 // Логирование всех запросов
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} ${req.method} ${req.url}`);
-  console.log('Origin:', req.headers.origin);
+  console.log("Origin:", req.headers.origin);
   next();
 });
 
@@ -65,19 +73,19 @@ app.use(express.json());
 app.use(useragent.express());
 
 // === TELEGRAM BOT CONFIGURATION ===
-const CHAT_IDS_FILE = path.join(__dirname, 'chat_ids.json');
+const CHAT_IDS_FILE = path.join(__dirname, "chat_ids.json");
 
 // Функция для загрузки chat ID из файла
 async function loadChatIds() {
   try {
-    const data = await fs.readFile(CHAT_IDS_FILE, 'utf8');
+    const data = await fs.readFile(CHAT_IDS_FILE, "utf8");
     return new Set(JSON.parse(data));
   } catch (error) {
-    if (error.code === 'ENOENT') {
-      await fs.writeFile(CHAT_IDS_FILE, '[]');
+    if (error.code === "ENOENT") {
+      await fs.writeFile(CHAT_IDS_FILE, "[]");
       return new Set();
     }
-    console.error('Ошибка при чтении chat IDs:', error);
+    console.error("Ошибка при чтении chat IDs:", error);
     return new Set();
   }
 }
@@ -87,7 +95,7 @@ async function saveChatIds(chatIds) {
   try {
     await fs.writeFile(CHAT_IDS_FILE, JSON.stringify([...chatIds]));
   } catch (error) {
-    console.error('Ошибка при сохранении chat IDs:', error);
+    console.error("Ошибка при сохранении chat IDs:", error);
   }
 }
 
@@ -98,19 +106,22 @@ let activeUsers = new Set();
 // Загружаем сохраненные chat ID при запуске
 (async () => {
   activeUsers = await loadChatIds();
-  console.log('Загружены активные пользователи:', [...activeUsers]);
+  console.log("Загружены активные пользователи:", [...activeUsers]);
 })();
 
 // Обработка команды /start
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
-  
+
   // Проверяем, не был ли пользователь уже активирован
   if (!activeUsers.has(chatId)) {
     activeUsers.add(chatId);
     await saveChatIds(activeUsers);
     console.log(`Новый пользователь добавлен: ${chatId}`);
-    bot.sendMessage(chatId, 'Бот активирован! Вы будете получать уведомления о новых расчетах.');
+    bot.sendMessage(
+      chatId,
+      "Бот активирован! Вы будете получать уведомления о новых расчетах."
+    );
   }
 });
 
@@ -120,16 +131,19 @@ bot.onText(/\/stop/, async (msg) => {
   if (activeUsers.has(chatId)) {
     activeUsers.delete(chatId);
     await saveChatIds(activeUsers);
-    bot.sendMessage(chatId, 'Уведомления отключены. Чтобы включить их снова, используйте команду /start');
+    bot.sendMessage(
+      chatId,
+      "Уведомления отключены. Чтобы включить их снова, используйте команду /start"
+    );
   }
 });
 
 // Добавим команду /status для проверки статуса
 bot.onText(/\/status/, async (msg) => {
   const chatId = msg.chat.id;
-  const status = activeUsers.has(chatId) ? 
-    'Уведомления включены' : 
-    'Уведомления отключены. Используйте /start для включения';
+  const status = activeUsers.has(chatId)
+    ? "Уведомления включены"
+    : "Уведомления отключены. Используйте /start для включения";
   bot.sendMessage(chatId, status);
 });
 
@@ -156,7 +170,7 @@ const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
 const SHEET_MAPPING = {
   value1: "J2",
   value2: "K2",
-  value3: "A1",
+  value3: "I2",
 };
 
 // Конфигурация для отображения значений из конкретных ячеек
@@ -191,11 +205,11 @@ function getUserInfo(req) {
 
 async function sendToAllUsers(userInfo, formData, pdfBuffer) {
   try {
-    console.log('=== Начало отправки сообщений ===');
-    console.log('Активные пользователи:', [...activeUsers]);
-    console.log('PDF буфер получен:', !!pdfBuffer);
+    console.log("=== Начало отправки сообщений ===");
+    console.log("Активные пользователи:", [...activeUsers]);
+    console.log("PDF буфер получен:", !!pdfBuffer);
     if (pdfBuffer) {
-      console.log('Размер PDF:', pdfBuffer.length, 'байт');
+      console.log("Размер PDF:", pdfBuffer.length, "байт");
     }
 
     let message = `🔔 Новая активность на сайте!\n\n`;
@@ -204,7 +218,7 @@ async function sendToAllUsers(userInfo, formData, pdfBuffer) {
       message += `📊 Данные формы:
 • Длина: ${formData.value1}
 • Ширина: ${formData.value2}
-• Высота: ${formData.value3}\n\n`;
+• Толщина: ${formData.value3}\n\n`;
     }
 
     message += `👤 Информация о пользователе:
@@ -216,25 +230,33 @@ async function sendToAllUsers(userInfo, formData, pdfBuffer) {
         console.log(`Отправка сообщения пользователю ${chatId}`);
         await bot.sendMessage(chatId, message);
         console.log(`Сообщение отправлено пользователю ${chatId}`);
-        
+
         if (pdfBuffer) {
           console.log(`Начало отправки PDF пользователю ${chatId}`);
           const buffer = Buffer.from(pdfBuffer);
           console.log(`PDF буфер создан, размер: ${buffer.length}`);
-          
-          await bot.sendDocument(chatId, buffer, {
-            filename: `Расчет_${new Date().toISOString().slice(0,10)}.pdf`,
-            contentType: 'application/pdf',
-          }, {
-            caption: 'Подробный расчет в формате PDF'
-          });
+
+          await bot.sendDocument(
+            chatId,
+            buffer,
+            {
+              filename: `Расчет_${new Date().toISOString().slice(0, 10)}.pdf`,
+              contentType: "application/pdf",
+            },
+            {
+              caption: "Подробный расчет в формате PDF",
+            }
+          );
           console.log(`PDF успешно отправлен пользователю ${chatId}`);
         } else {
-          console.log('PDF буфер отсутствует, пропускаем отправку файла');
+          console.log("PDF буфер отсутствует, пропускаем отправку файла");
         }
       } catch (error) {
         console.error(`Ошибка отправки пользователю ${chatId}:`, error);
-        console.error('Полная информация об ошибке:', JSON.stringify(error, null, 2));
+        console.error(
+          "Полная информация об ошибке:",
+          JSON.stringify(error, null, 2)
+        );
         if (error.response?.statusCode === 403) {
           console.log(`Удаление пользователя ${chatId} из-за блокировки`);
           activeUsers.delete(chatId);
@@ -242,10 +264,10 @@ async function sendToAllUsers(userInfo, formData, pdfBuffer) {
         }
       }
     }
-    console.log('=== Завершение отправки сообщений ===');
+    console.log("=== Завершение отправки сообщений ===");
   } catch (error) {
-    console.error('Ошибка массовой рассылки:', error);
-    console.error('Стек ошибки:', error.stack);
+    console.error("Ошибка массовой рассылки:", error);
+    console.error("Стек ошибки:", error.stack);
   }
 }
 
@@ -271,28 +293,31 @@ async function downloadWithRetry(downloadUrl, token, maxRetries = 3) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const response = await axios({
-        method: 'get',
+        method: "get",
         url: downloadUrl,
-        responseType: 'arraybuffer',
+        responseType: "arraybuffer",
         headers: {
-          'Authorization': `Bearer ${token.access_token}`,
-          'Accept': 'application/pdf'
+          Authorization: `Bearer ${token.access_token}`,
+          Accept: "application/pdf",
         },
-        timeout: 30000 // увеличиваем timeout до 30 секунд
+        timeout: 30000, // увеличиваем timeout до 30 секунд
       });
-      
+
       // Проверяем, что получили PDF
-      if (response.headers['content-type'].includes('application/pdf')) {
+      if (response.headers["content-type"].includes("application/pdf")) {
         console.log(`PDF успешно загружен (попытка ${attempt})`);
         return response.data;
       } else {
-        throw new Error('Получен неверный тип контента');
+        throw new Error("Получен неверный тип контента");
       }
     } catch (error) {
-      console.error(`Попытка ${attempt} загрузки PDF не удалась:`, error.message);
+      console.error(
+        `Попытка ${attempt} загрузки PDF не удалась:`,
+        error.message
+      );
       if (attempt === maxRetries) throw error;
       // Увеличиваем время ожидания с каждой попыткой
-      await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+      await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
     }
   }
 }
@@ -344,33 +369,33 @@ app.post("/update-sheet", async (req, res) => {
 
 app.get("/download-file", async (req, res) => {
   try {
-    console.log('=== Начало скачивания файла ===');
+    console.log("=== Начало скачивания файла ===");
     const client = await auth.getClient();
     const token = await client.getAccessToken();
-    
+
     const downloadUrl = await generatePdfUrl(spreadsheetId);
     const pdfBuffer = await downloadWithRetry(downloadUrl, token);
-    
+
     const userInfo = getUserInfo(req);
     await sendToAllUsers(userInfo, null, pdfBuffer);
 
     // Формируем безопасное имя файла
-    const date = new Date().toISOString().split('T')[0]; // Получаем формат YYYY-MM-DD
-    const fileName = `calculation_${date}.pdf`;
-    
+    const date = new Date().toISOString().split("T")[0]; // Получаем формат YYYY-MM-DD
+    const fileName = `enel-spb.ru_${date}.pdf`;
+
     // Устанавливаем заголовки для скачивания
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=' + fileName);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=" + fileName);
     res.send(pdfBuffer);
-    
-    console.log('=== Завершение скачивания файла ===');
+
+    console.log("=== Завершение скачивания файла ===");
   } catch (error) {
-    console.error('=== ОШИБКА ПРИ СКАЧИВАНИИ ФАЙЛА ===');
-    console.error('Сообщение:', error.message);
-    console.error('Стек:', error.stack);
+    console.error("=== ОШИБКА ПРИ СКАЧИВАНИИ ФАЙЛА ===");
+    console.error("Сообщение:", error.message);
+    console.error("Стек:", error.stack);
     res.status(500).json({
-      error: 'Ошибка при скачивании файла',
-      details: error.message
+      error: "Ошибка при скачивании файла",
+      details: error.message,
     });
   }
 });

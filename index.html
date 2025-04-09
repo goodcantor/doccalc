@@ -8,13 +8,16 @@
         margin: 0;
         padding: 0;
       }
+      * {
+        box-sizing: border-box;
+      }
       .calc {
         font-family: "Onest", "Inter", Arial, sans-serif;
-        box-sizing: border-box;
-        padding: 60px 0;
+        padding: 40px 0;
+        background-color: #edeef1;
       }
       .container {
-        max-width: 1200px;
+        max-width: 1160px;
         padding: 0 20px;
         margin: 0 auto;
       }
@@ -321,16 +324,12 @@
                   />
                 </svg>
               </span>
-              <input
-                type="text"
-                id="value3"
-                class="calc__input"
-                placeholder="Высота в метрах"
-                pattern="[0-9]+([.,][0-9]+)?"
-                inputmode="decimal"
-                required
-                onkeypress="return /[0-9.,]/i.test(event.key)"
-              />
+              <select id="value3" class="calc__input" required>
+                <option value="25" disabled selected>Толщина в см</option>
+                <option value="20">20 см</option>
+                <option value="25">25 см</option>
+                <option value="30">30 см</option>
+              </select>
             </div>
             <button type="submit" class="calc__submit-btn">
               <span class="button-text">Получить рассчёт</span>
@@ -446,14 +445,19 @@
 
           // Получаем значения из полей формы
           const formatValue = (value) => {
-            // Преобразуем строку в число и заменяем точку на запятую для Google Sheets
             if (!value) return "";
-            // Сначала преобразуем в число, чтобы убедиться, что это числовое значение
-            const numValue = value.replace(",", ".").trim();
-            const parsed = parseFloat(numValue);
-            if (isNaN(parsed)) return value;
-            // Затем преобразуем обратно в строку с запятой вместо точки для Google Sheets
-            return String(parsed).replace(".", ",");
+
+            // Удаляем все лишние символы, оставляя только цифры, точку и запятую
+            const cleaned = value.replace(/[^0-9.,]/g, "").replace(",", ".");
+
+            // Преобразуем в число
+            const parsed = parseFloat(cleaned);
+
+            // Если не число — возвращаем пустую строку
+            if (isNaN(parsed)) return "";
+
+            // Возвращаем число (без кавычек, Excel/Sheets не добавит ' перед значением)
+            return parsed;
           };
 
           const submitBtn = e.target.querySelector(".calc__submit-btn");
@@ -467,7 +471,9 @@
           const data = {
             value1: formatValue(document.getElementById("value1").value || "0"),
             value2: formatValue(document.getElementById("value2").value || "0"),
-            value3: formatValue(document.getElementById("value3").value || "0"),
+            value3: formatValue(
+              document.getElementById("value3").value || "25"
+            ),
           };
 
           try {
@@ -476,7 +482,7 @@
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(data),
             });
-
+            console.log(data);
             if (response.ok) {
               document.getElementById("status").innerHTML =
                 '<span style="color:green">Данные успешно записаны!</span>';
