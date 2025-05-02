@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>ENEL - Расчет стоимости</title>
+    <style>
+      @font-face {
+        font-family: "Inter";
+        src: url("fonts/Inter-Regular.ttf") format("truetype");
+      }
+
+      body {
+        font-family: "Inter", Arial, sans-serif;
+        margin: 0;
+
+        color: #202737;
+        background: url("bgim.png") no-repeat top center fixed;
+        background-size: contain;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      .header-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding-top: 40px;
+      }
+      .main-container {
+        border-radius: 20px;
+        border: 1px solid #bdbdbd;
+        padding: 40px 20px;
+        background: #ffffff;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 40px;
+      }
+
+      .logo {
+        font-size: 46px;
+        font-weight: bold;
+      }
+
+      .company-info {
+        text-align: right;
+        font-size: 13px;
+        color: #0d0d0d;
+        font-weight: 600;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.5);
+        padding: 10px;
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+      }
+
+      .subtitle {
+        font-size: 17px;
+        color: #000000;
+        margin-top: 8px;
+      }
+
+      table {
+        width: 100%;
+        margin: 16px auto;
+        background: #fff;
+        border-collapse: collapse;
+        border-spacing: 0;
+        overflow: hidden;
+      }
+
+      thead th {
+        background: none;
+        font-weight: 600;
+        color: #202737;
+        font-size: 15px;
+        text-align: left;
+        border: none;
+        padding: 18px 12px 12px 12px;
+      }
+
+      th,
+      td {
+        padding: 8px 12px;
+        border: none;
+        background: none;
+      }
+
+      thead {
+        border-bottom: 1px solid rgba(197, 197, 197, 0.5);
+      }
+
+      tbody tr {
+        border: none;
+        background: none;
+
+        border-bottom: 1px solid rgba(197, 197, 197, 0.5);
+        border-left: 1px solid rgba(197, 197, 197, 0.5);
+      }
+      tr > td {
+        border-right: 1px solid rgba(197, 197, 197, 0.5);
+      }
+
+      th.col-qty,
+      th.col-unit,
+      th.col-price,
+      th.col-total,
+      td.col-qty,
+      td.col-unit,
+      td.col-price,
+      td.col-total {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .section-title {
+        font-size: 16px;
+        font-weight: bold;
+        margin: 30px 0 10px 0;
+        color: #202737;
+        background: #f3f6fa;
+        padding: 8px 12px;
+        border-left: 4px solid #4a90e2;
+      }
+
+      .subsection-title {
+        font-size: 14px;
+        font-weight: bold;
+        color: #4a4a4a;
+        background: #f9f9f9;
+        padding: 6px 8px;
+        border-bottom: 1.5px solid #b5c9e2;
+      }
+
+      .highlight-yellow {
+        background: #fff7c0 !important;
+      }
+
+      .total-row,
+      .grand-total {
+        font-weight: bold;
+        color: #202737;
+        background: #f7fafd;
+        border-top: none;
+        text-align: right;
+        border-radius: 0 0 18px 18px;
+        box-shadow: none;
+        padding: 16px 12px;
+      }
+
+      .grand-total {
+        font-size: 18px;
+        margin-top: 24px;
+        padding: 18px 0;
+        background: #f3f6fa;
+        border-radius: 0 0 18px 18px;
+      }
+
+      tr.section-divider td {
+        border-bottom: none;
+        height: 8px;
+        background: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-container">
+      <div class="header">
+        <div>
+          <div class="logo">ENEL</div>
+          <div class="subtitle">Строительство загородных домов</div>
+        </div>
+        <div class="company-info">
+          <div>Расчётный счёт: 40802810020000387233</div>
+          <div>Название банка: ООО "Банк Точка"</div>
+          <div>БИК: 044525104</div>
+          <div>Корреспондентский счёт: 30101810745374525104</div>
+          <div>Наименование: ИП Леонов Никита Евгеньевич</div>
+          <div>ИНН: 682016289371</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-container">
+      <div class="section-title">Фундаментальная плитка</div>
+      <table>
+        <thead>
+          <tr>
+            <th class="col-name">Наименование</th>
+            <th class="col-qty">Кол-во</th>
+            <th class="col-unit">Ед. изм.</th>
+            <th class="col-price">Цена</th>
+            <th class="col-total">Итого</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each materials}}
+          <tr class="trr">
+            <td>{{name}}</td>
+            <td class="col-qty">{{quantity}}</td>
+            <td class="col-unit">{{unit}}</td>
+            <td class="col-price">{{price}}</td>
+            <td class="col-total">{{total}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <div class="total-row">Итого материал: {{materialsTotal}}</div>
+
+      <div class="section-title">Расходники</div>
+      <table>
+        <thead>
+          <tr>
+            <th class="col-name">Наименование</th>
+            <th class="col-qty">Кол-во</th>
+            <th class="col-unit">Ед. изм.</th>
+            <th class="col-price">Цена</th>
+            <th class="col-total">Итого</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each consumables}}
+          <tr>
+            <td>{{name}}</td>
+            <td class="col-qty">{{quantity}}</td>
+            <td class="col-unit">{{unit}}</td>
+            <td class="col-price">{{price}}</td>
+            <td class="col-total">{{total}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <div class="total-row">Итого расходники: {{consumablesTotal}}</div>
+
+      <div class="section-title">Техника</div>
+      <table>
+        <thead>
+          <tr>
+            <th class="col-name">Наименование</th>
+            <th class="col-qty">Кол-во</th>
+            <th class="col-unit">Ед. изм.</th>
+            <th class="col-price">Цена</th>
+            <th class="col-total">Итого</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each equipment}}
+          <tr>
+            <td>{{name}}</td>
+            <td class="col-qty">{{quantity}}</td>
+            <td class="col-unit">{{unit}}</td>
+            <td class="col-price">{{price}}</td>
+            <td class="col-total">{{total}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <div class="total-row">Итого техника: {{equipmentTotal}}</div>
+
+      <div class="section-title">Работа</div>
+      <table>
+        <thead>
+          <tr>
+            <th class="col-name">Наименование</th>
+            <th class="col-qty">Кол-во</th>
+            <th class="col-unit">Ед. изм.</th>
+            <th class="col-price">Цена</th>
+            <th class="col-total">Итого</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each labor}}
+          <tr>
+            <td>{{name}}</td>
+            <td class="col-qty">{{quantity}}</td>
+            <td class="col-unit">{{unit}}</td>
+            <td class="col-price">{{price}}</td>
+            <td class="col-total">{{total}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <div class="total-row">Итого работы: {{laborTotal}}</div>
+
+      <div class="grand-total">Всего: {{grandTotal}}</div>
+    </div>
+  </body>
+</html>
