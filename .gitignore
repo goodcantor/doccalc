@@ -2,3 +2,5 @@ node_modules
 
 creds.json
 doccalc-196e0ec934b7.json
+
+.env
