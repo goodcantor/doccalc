@@ -341,7 +341,7 @@
             <h3 class="calc__result-title">Результаты расчёта:</h3>
 
             <div class="calc__result-price" id="totalPrice">
-              Итоговая стоимость: <span></span>
+              Итоговая стоимость: <span id="totalPriceValue"></span> ₽
             </div>
 
             <div id="displayContainer"></div>
@@ -414,11 +414,11 @@
             }
 
             // Отображаем детали расчёта
-            const displayContainer =
-              document.getElementById("displayContainer");
-            displayContainer.innerHTML = data.displayLines
-              .map((line) => `<div class="display-line">${line.text}</div>`)
-              .join("");
+            // const displayContainer =
+            //   document.getElementById("displayContainer");
+            // displayContainer.innerHTML = data.displayLines
+            //   .map((line) => `<div class="display-line">${line.text}</div>`)
+            //   .join("");
           } else {
             resultSection.style.display = "none";
           }

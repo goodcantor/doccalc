@@ -13,7 +13,6 @@ const geoip = require("geoip-lite");
 const useragent = require("express-useragent");
 const fs = require("fs").promises;
 const path = require("path");
-const puppeteer = require("puppeteer");
 const Handlebars = require("handlebars");
 const html_to_pdf = require("html-pdf-node");
 
@@ -191,7 +190,7 @@ const HTML_TEMPLATE = `<!DOCTYPE html>
       <div class="header">
         <div>
           <div class="logo">ENEL</div>
-          <div class="subtitle">Строительство загородных домов</div>
+          <div class="subtitle">Строительство загородных </br> домов</div>
         </div>
         <div class="company-info">
           <div>Расчётный счёт: 40802810020000387233</div>
@@ -205,11 +204,11 @@ const HTML_TEMPLATE = `<!DOCTYPE html>
     </div>
 
     <div class="main-container">
-      <div class="section-title">Монолитная плита</div>
+      <div class="section-title">Материал</div>
       <table>
         <thead>
           <tr>
-            <th class="col-name">Монолитная плита</th>
+            <th class="col-name">Материал</th>
             <th class="col-qty">Кол-во</th>
             <th class="col-unit">Ед. изм.</th>
             <th class="col-price">Цена</th>
@@ -359,49 +358,49 @@ app.use((req, res, next) => {
 
 /* ─────────────── 3.  Telegram-бот ─────────────────────────────────────── */
 
-// const CHAT_IDS_FILE = path.join(__dirname, "chat_ids.json");
+const CHAT_IDS_FILE = path.join(__dirname, "chat_ids.json");
 
-// async function loadChatIds() {
-//   try {
-//     const d = await fs.readFile(CHAT_IDS_FILE, "utf8");
-//     return new Set(JSON.parse(d));
-//   } catch {
-//     await fs.writeFile(CHAT_IDS_FILE, "[]");
-//     return new Set();
-//   }
-// }
-// async function saveChatIds(set) {
-//   await fs.writeFile(CHAT_IDS_FILE, JSON.stringify([...set]));
-// }
+async function loadChatIds() {
+  try {
+    const d = await fs.readFile(CHAT_IDS_FILE, "utf8");
+    return new Set(JSON.parse(d));
+  } catch {
+    await fs.writeFile(CHAT_IDS_FILE, "[]");
+    return new Set();
+  }
+}
+async function saveChatIds(set) {
+  await fs.writeFile(CHAT_IDS_FILE, JSON.stringify([...set]));
+}
 
-// const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 let activeUsers = new Set();
 
-// (async () => {
-//   activeUsers = await loadChatIds();
-//   console.log("Активные Telegram-пользователи:", [...activeUsers]);
-// })();
+(async () => {
+  activeUsers = await loadChatIds();
+  console.log("Активные Telegram-пользователи:", [...activeUsers]);
+})();
 
-// bot.onText(/\/start/, async (m) => {
-//   if (!activeUsers.has(m.chat.id)) {
-//     activeUsers.add(m.chat.id);
-//     await saveChatIds(activeUsers);
-//     bot.sendMessage(m.chat.id, "Бот активирован!");
-//   }
-// });
-// bot.onText(/\/stop/, async (m) => {
-//   activeUsers.delete(m.chat.id);
-//   await saveChatIds(activeUsers);
-//   bot.sendMessage(m.chat.id, "Уведомления отключены");
-// });
-// bot.onText(/\/status/, async (m) => {
-//   bot.sendMessage(
-//     m.chat.id,
-//     activeUsers.has(m.chat.id)
-//       ? "Уведомления включены"
-//       : "Уведомления отключены"
-//   );
-// });
+bot.onText(/\/start/, async (m) => {
+  if (!activeUsers.has(m.chat.id)) {
+    activeUsers.add(m.chat.id);
+    await saveChatIds(activeUsers);
+    bot.sendMessage(m.chat.id, "Бот активирован!");
+  }
+});
+bot.onText(/\/stop/, async (m) => {
+  activeUsers.delete(m.chat.id);
+  await saveChatIds(activeUsers);
+  bot.sendMessage(m.chat.id, "Уведомления отключены");
+});
+bot.onText(/\/status/, async (m) => {
+  bot.sendMessage(
+    m.chat.id,
+    activeUsers.has(m.chat.id)
+      ? "Уведомления включены"
+      : "Уведомления отключены"
+  );
+});
 
 /* ─────────────── 4.  Google Sheets ────────────────────────────────────── */
 
@@ -491,39 +490,6 @@ app.post("/update-sheet", async (req, res) => {
   }
 });
 
-async function generatePdfUrl(id) {
-  return (
-    `https://docs.google.com/spreadsheets/d/${id}/export?` +
-    new URLSearchParams({
-      format: "pdf",
-      size: "A4",
-      portrait: "true",
-      fitw: "true",
-      gridlines: "false",
-      sheetnames: "false",
-      pagenum: "false",
-      scale: "4",
-      fzr: "true",
-    }).toString()
-  );
-}
-async function downloadWithRetry(url, token, max = 3) {
-  for (let i = 1; i <= max; i++) {
-    try {
-      const r = await axios.get(url, {
-        responseType: "arraybuffer",
-        headers: { Authorization: `Bearer ${token}` },
-        timeout: 30000,
-      });
-      if (r.headers["content-type"]?.includes("application/pdf")) return r.data;
-      throw new Error("Неверный контент");
-    } catch (e) {
-      if (i === max) throw e;
-      await new Promise((r) => setTimeout(r, 2000 * i));
-    }
-  }
-}
-
 // Добавить функцию для генерации PDF из HTML
 async function generateCustomPdf(data) {
   try {
@@ -541,8 +507,8 @@ async function generateCustomPdf(data) {
 
     // Настройки для PDF
     const options = {
-      width: "1000px",
-      height: "2450px",
+      width: "1040px",
+      height: "2350px",
       margin: {
         top: "0",
         right: "0",
