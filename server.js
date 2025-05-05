@@ -325,7 +325,8 @@ const ALLOWED_ORIGINS = [
   "https://api.enel-spb.ru",
   "http://api.enel-spb.ru",
   "https://api.farvix.shop",
-  "http://api.farvix.shop",
+  "http://enelspbapi.craftlify.ru",
+  "https://enelspbapi.craftlify.ru",
 ];
 
 app.use(

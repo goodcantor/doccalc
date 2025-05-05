@@ -1,7 +1,3 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Калькулятор расчёта</title>
     <style>
       body,
       html {
@@ -47,6 +43,20 @@
         width: 100%;
         display: flex;
       }
+    
+      .calc__input-group-select::after {
+         content: "";
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid #666;
+        pointer-events: none;
+      }
       .calc__input {
         width: 100%;
         padding: 12px 12px 12px 46px;
@@ -57,6 +67,9 @@
         font-weight: 400;
         line-height: 100%;
         letter-spacing: 0.32px;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
       }
       .calc__input-icon {
         position: absolute;
@@ -309,7 +322,7 @@
                 onkeypress="return /[0-9.,]/i.test(event.key)"
               />
             </div>
-            <div class="calc__input-group">
+            <div class="calc__input-group calc__input-group-select">
               <span class="calc__input-icon">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -364,7 +377,8 @@
     </section>
 
     <script>
-      const API_URL = "http://localhost:3050";
+      // const API_URL = "http://localhost:3050";
+      const API_URL = "https://enelspbapi.craftlify.ru";
       const downloadBtn = document.getElementById("downloadBtn");
 
       // Функция для форматирования чисел
@@ -507,5 +521,4 @@
         }
       });
     </script>
-  </body>
-</html>
+
